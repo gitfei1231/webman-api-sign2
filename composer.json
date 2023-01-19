@@ -1,0 +1,29 @@
+{
+  "name": "wen-gg/webman-api-sign2",
+  "type": "library",
+  "license": "MIT",
+  "description": "适用于webman的api签名",
+  "keywords": [
+    "webman",
+    "api",
+    "sign"
+  ],
+  "require": {
+    "webman/think-cache": "^1.0",
+    "psr/container": "1.1.1"
+  },
+  "require-dev": {
+    "workerman/webman": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Wengg\\WebmanApiSign\\": "src"
+    }
+  },
+  "authors": [
+    {
+      "name": "mosquito",
+      "email": "zwj1206_hi@163.com"
+    }
+  ]
+}
