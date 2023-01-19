@@ -2,18 +2,19 @@
 适用于webman的api签名
 
 # 安装
-composer require wen-gg/webman-api-sign
+composer require gitfei1231/webman-api-sign
 
 # 配置
 ```php
 return [
     'enable' => true,
 
-    //
+    //配置
     'driver' => \Wengg\WebmanApiSign\Driver\ArrayDriver::class, //如有需要可自行实现BaseDriver
     'encrypt' => 'sha256', //加密方式
     'timeout' => 60, //timestamp超时时间秒，0不限制
     'table' => 'app_sign', //表名
+    'replay' => false, //防重放请求是否开启 true只能请求一次
 
     //字段对照，可从(header,get,post)获取的值
     'fields' => [

@@ -17,7 +17,7 @@ class ApiSignService
 
     public function __construct()
     {
-        $this->config = config('plugin.wen-gg.webman-api-sign.app') ?: [];
+        $this->config = config('plugin.gitfei1231.webman-api-sign.app') ?: [];
         if ($this->config) {
             $this->driver = new $this->config['driver']($this->config);
         }

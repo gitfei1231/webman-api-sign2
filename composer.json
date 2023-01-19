@@ -1,5 +1,5 @@
 {
-  "name": "wen-gg/webman-api-sign2",
+  "name": "gitfei1231/webman-api-sign",
   "type": "library",
   "license": "MIT",
   "description": "适用于webman的api签名",
@@ -22,8 +22,8 @@
   },
   "authors": [
     {
-      "name": "mosquito",
-      "email": "zwj1206_hi@163.com"
+      "name": "tangfei",
+      "email": "957987132@qq.com"
     }
   ]
 }
