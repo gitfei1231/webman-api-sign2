@@ -18,9 +18,9 @@ return [
 
     //字段对照，可从(header,get,post)获取的值
     'fields' => [
-        'app_key' => 'appKey', //app_key
+        'app_key' => 'appId', //app_key
         'timestamp' => 'timestamp', //时间戳
-        'noncestr' => 'noncestr', //随机字符串
+        'noncestr' => 'nonceStr', //随机字符串
         'signature' => 'signature', //签名字符串
     ],
 
@@ -38,7 +38,7 @@ return [
 ```
 
 # 签名计算
-注意：签名数据除业务参数外需加上app_key，timestamp，noncestr对应的字段数据
+注意：签名数据除业务参数外需加上app_key，timestamp，nonceStr对应的字段数据
 1. 签名数据先按照键名升序排序
 2. 使用 & 链接签名数组（参数不转义，空数据不参与加密），再在尾部加上app_secret
 3. 再根据配置的加密方式 hash() 签名数据
@@ -57,16 +57,16 @@ return [
         "e": [],
         "d": "hello"
     },
-    "appKey": "1661408635",
+    "appId": "1661408635",
     "timestamp": "1662721474",
-    "noncestr": "ewsqam"
+    "nonceStr": "ewsqam"
 }
 ```
 排序后
 ```json
 {
     "a": "1",
-    "appKey": "1661408635",
+    "appId": "1661408635",
     "b": [
         "你好世界",
         "abc123"
@@ -75,15 +75,15 @@ return [
         "d": "hello",
         "e": []
     },
-    "noncestr": "ewsqam",
+    "nonceStr": "ewsqam",
     "timestamp": "1662721474"
 }
 ```
 链接后
 ```
-a=1&appKey=1661408635&b[0]=你好世界&b[1]=abc123&c[d]=hello&noncestr=ewsqam&timestamp=1662721474D81668E7B3F24F4DAB32E5B88EAE27AC
+a=1&appId=1661408635&b[0]=你好世界&b[1]=abc123&c[d]=hello&nonceStr=ewsqam&timestamp=1662721474D81668E7B3F24F4DAB32E5B88EAE27AC
 ```
 加密
 ```php
-$signature = hash('sha256', 'a=1&appKey=1661408635&b[0]=你好世界&b[1]=abc123&c[d]=hello&noncestr=ewsqam&timestamp=1662721474D81668E7B3F24F4DAB32E5B88EAE27AC');
+$signature = hash('sha256', 'a=1&appId=1661408635&b[0]=你好世界&b[1]=abc123&c[d]=hello&nonceStr=ewsqam&timestamp=1662721474D81668E7B3F24F4DAB32E5B88EAE27AC');
 ```

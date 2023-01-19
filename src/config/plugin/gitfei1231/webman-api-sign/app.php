@@ -12,9 +12,9 @@ return [
 
     //字段对照，可从(header,get,post)获取的值
     'fields' => [
-        'app_key' => 'appKey', //app_key
+        'app_key' => 'appId', //app_key
         'timestamp' => 'timestamp', //时间戳
-        'noncestr' => 'noncestr', //随机字符串
+        'noncestr' => 'nonceStr', //随机字符串
         'signature' => 'signature', //签名字符串
     ],
 
