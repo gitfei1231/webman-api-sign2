@@ -10,7 +10,7 @@ return [
     'table' => 'app_sign', //表名
     //如果使用 DatabaseDriver 需要缓存查询后的数据
     'cache' => [
-        'key' => 'app_sign_app_key',
+        'key' => 'app_sign_app_key', // false 关闭缓存
         'timeout' => 604800
     ], 
     'replay' => false, //防重放请求是否开启 true只能请求一次
