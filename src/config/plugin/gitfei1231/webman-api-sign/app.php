@@ -4,10 +4,15 @@ return [
     'enable' => true,
 
     //配置
-    'driver' => \Wengg\WebmanApiSign\Driver\ArrayDriver::class, //如有需要可自行实现BaseDriver
+    'driver' => \Wengg\WebmanApiSign\Driver\ArrayDriver::class, //如有需要可自行实现BaseDriver DatabaseDriver ArrayDriver
     'encrypt' => 'sha256', //加密方式
     'timeout' => 60, //timestamp超时时间秒，0不限制
     'table' => 'app_sign', //表名
+    //如果使用 DatabaseDriver 需要缓存查询后的数据
+    'cache' => [
+        'key' => 'app_sign_app_key',
+        'timeout' => 604800
+    ], 
     'replay' => false, //防重放请求是否开启 true只能请求一次
 
     //字段对照，可从(header,get,post)获取的值

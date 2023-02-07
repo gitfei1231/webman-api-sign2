@@ -1,6 +1,7 @@
 <?php
 
 namespace Wengg\WebmanApiSign\Driver;
+use think\facade\Db;
 
 /**
  * 数据库
@@ -20,7 +21,7 @@ class DatabaseDriver implements BaseDriver
 
     public function getInfo(string $app_key)
     {
-        $data = \support\Db::table($this->config['table'])->where('app_key', $app_key)->first();
+        $data = Db::name($this->config['table'])->cache($this->config['table'].'_app_key', 604800)->where('app_key', $app_key)->find();
         return $data ? (array) $data : [];
     }
 }
