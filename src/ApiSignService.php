@@ -2,6 +2,7 @@
 
 namespace Wengg\WebmanApiSign;
 use think\facade\Cache;
+use Wengg\WebmanApiSign\ApiRsaService as APIRSA;
 
 class ApiSignService
 {
@@ -64,7 +65,7 @@ class ApiSignService
      * 签名
      * @author mosquito <zwj1206_hi@163.com> 2022-08-25
      */
-    public function sign(array $data)
+    public function sign(array $data, string $signature)
     {
         unset($data[$this->config['fields']['signature']]);
         if (!isset($data[$this->config['fields']['app_key']]) || !isset($data[$this->config['fields']['timestamp']]) || !isset($data[$this->config['fields']['noncestr']])) {
@@ -83,10 +84,16 @@ class ApiSignService
             throw new ApiSignException("应用key已过期", ApiSignException::APPKEY_EXPIRED);
         }
 
-        //计算签名
+        //判断是否启用rsa算法
+        if($app_sign['rsa_status']){
+            $key = APIRSA::rsa_decode($signature, $app_sign['private_key']);
+        }else{
+            $key = $app_sign['app_secret'];
+        }
+        
         $data = $this->sortData($data);
         $encrypt = $this->config['encrypt'] ?: 'sha256';
-        $str = urldecode(http_build_query($data)) . $app_sign['app_secret'];
+        $str = urldecode(http_build_query($data)) . $key;
         $signature = hash($encrypt, $str);
         return $signature;
     }
@@ -95,12 +102,12 @@ class ApiSignService
      * 验签
      * @author mosquito <zwj1206_hi@163.com> 2022-08-25
      */
-    public function check(array $data)
+    public function check(array $data, string $signature)
     {
         if (!$signature = $data[$this->config['fields']['signature']]) {
             throw new ApiSignException("签名参数错误", ApiSignException::PARAMS_ERROR);
         }
-        if ($signature !== $this->sign($data)) {
+        if ($signature !== $this->sign($data, $signature)) {
             throw new ApiSignException("签名验证失败", ApiSignException::SIGN_VERIFY_FAIL);
         }
         $ts = time();

@@ -26,7 +26,7 @@ class ApiSignMiddleware implements MiddlewareInterface
                 $fields['noncestr'] => $request->header($fields['noncestr'], $request->input($fields['noncestr'])),
                 $fields['signature'] => $request->header($fields['signature'], $request->input($fields['signature'])),
             ]);
-            $service->check($data);
+            $service->check($data, $request->input($fields['signature']));
         }
 
         return $next($request);

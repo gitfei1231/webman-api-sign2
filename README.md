@@ -37,10 +37,30 @@ return [
             'app_name' => '默认', //应用名称
             'status' => 1, //状态：0=禁用，1=启用
             'expired_at' => null, //过期时间，例如：2023-01-01 00:00:00，null不限制
+            'rsa_status' => 0, //状态：0=禁用，1=启用
+            /**
+             * sign私钥 RS256加密
+             */
+            'private_key' => <<<EOD
+-----BEGIN RSA PRIVATE KEY-----
+...
+-----END RSA PRIVATE KEY-----
+EOD,
+            /**
+             * sign公钥 RS256加密
+             */
+            'public_key' => <<<EOD
+-----BEGIN PUBLIC KEY-----
+...
+-----END PUBLIC KEY-----
+EOD
         ],
     ],
 ];
 ```
+
+# 如果开启了rsa_status
+那么客户端随机生成app_secret，用公钥进行加密app_secret，服务器端会进行解密出app_secret进行比对
 
 # 不需要签名验证 notSign
 #### 不设置 setParams 和 设置notSign为 false 都要经过验证
