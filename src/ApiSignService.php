@@ -65,7 +65,7 @@ class ApiSignService
      * 签名
      * @author mosquito <zwj1206_hi@163.com> 2022-08-25
      */
-    public function sign(array $data, string $signature)
+    public function sign(array $data, string $sign)
     {
         unset($data[$this->config['fields']['signature']]);
         if (!isset($data[$this->config['fields']['app_key']]) || !isset($data[$this->config['fields']['timestamp']]) || !isset($data[$this->config['fields']['noncestr']])) {
@@ -86,7 +86,10 @@ class ApiSignService
 
         //判断是否启用rsa算法
         if($app_sign['rsa_status']){
-            $key = APIRSA::rsa_decode($signature, $app_sign['private_key']);
+            $arr  = APIRSA::rsa_decode($sign, $app_sign['private_key']);
+            $arr  = \json_decode($arr,true);
+            $key  = $arr['app_secret'] ?? '';
+            $sign = $arr['sign'] ?? '';
         }else{
             $key = $app_sign['app_secret'];
         }
@@ -95,19 +98,20 @@ class ApiSignService
         $encrypt = $this->config['encrypt'] ?: 'sha256';
         $str = urldecode(http_build_query($data)) . $key;
         $signature = hash($encrypt, $str);
-        return $signature;
+
+        return $signature === $sign;
     }
 
     /**
      * 验签
      * @author mosquito <zwj1206_hi@163.com> 2022-08-25
      */
-    public function check(array $data, string $signature)
+    public function check(array $data)
     {
         if (!$signature = $data[$this->config['fields']['signature']]) {
             throw new ApiSignException("签名参数错误", ApiSignException::PARAMS_ERROR);
         }
-        if ($signature !== $this->sign($data, $signature)) {
+        if (!$this->sign($data, $signature)) {
             throw new ApiSignException("签名验证失败", ApiSignException::SIGN_VERIFY_FAIL);
         }
         $ts = time();
