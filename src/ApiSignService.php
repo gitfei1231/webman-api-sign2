@@ -86,10 +86,14 @@ class ApiSignService
 
         //判断是否启用rsa算法
         if($app_sign['rsa_status']){
-            $arr  = APIRSA::rsa_decode($sign, $app_sign['private_key']);
-            $arr  = \json_decode($arr,true);
-            $key  = $arr['app_secret'] ?? '';
-            $sign = $arr['sign'] ?? '';
+            try{
+                $arr  = APIRSA::rsa_decode($sign, $app_sign['private_key']);
+                $arr  = \json_decode($arr,true);
+                $key  = $arr['app_secret'] ?? '';
+                $sign = $arr['sign'] ?? '';
+            } catch ( \Exception $e ) {
+                throw new ApiSignException("签名参数错误", ApiSignException::PARAMS_ERROR);
+            }
         }else{
             $key = $app_sign['app_secret'];
         }
