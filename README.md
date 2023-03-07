@@ -97,6 +97,12 @@ Route::get('/login', [app\api\controller\LoginController::class, 'login']);
 }
 ```
 
+### RS256 生成 公钥和私钥
+```php
+ssh-keygen -t rsa -b 4096 -E SHA256 -m PEM -P "" -f RS256.key
+openssl rsa -in RS256.key -pubout -outform PEM -out RS256.key.pub
+```
+
 # 签名计算
 注意：签名数据除业务参数外需加上app_key，timestamp，nonceStr对应的字段数据
 1. 签名数据先按照键名升序排序
