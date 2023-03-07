@@ -21,8 +21,10 @@ class DatabaseDriver implements BaseDriver
 
     public function getInfo(string $app_key)
     {
-        $cache = $this->config['cache'];
-        $data = Db::name($this->config['table'])->cache($cache['key'], $cache['timeout'])->where('app_key', $app_key)->find();
+        $db_cache_time = $this->config['db_cache_time'];
+        $key  = is_null($db_cache_time) ? false : $app_key;
+        $time = is_null($db_cache_time) ? 0     : $db_cache_time;
+        $data = Db::name($this->config['table'])->cache($key, $time)->where('app_key', $app_key)->find();
         return $data ? (array) $data : [];
     }
 }

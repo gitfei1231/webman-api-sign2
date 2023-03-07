@@ -123,12 +123,15 @@ class ApiSignService
             throw new ApiSignException("签名超时", ApiSignException::SIGN_TIMEOUT);
         }
         if($this->config['replay']){
-            $noncestr = Cache::get('noncestr_'.$data[$this->config['fields']['noncestr']].'_'.$data[$this->config['fields']['timestamp']]);
+            if ($request = \request()) {
+                $ip = $request->getRealIp();
+            }
+            $noncestr = Cache::get('noncestr_'.$data[$this->config['fields']['noncestr']].($ip ?? ''));
             if ($noncestr) {
                 throw new ApiSignException("请求失效", ApiSignException::REQUEST_INVALID);
             }else{
                 //存储 noncestr
-                Cache::set('noncestr_'.$data[$this->config['fields']['noncestr']].'_'.$data[$this->config['fields']['timestamp']],[$data[$this->config['fields']['noncestr']], $data[$this->config['fields']['timestamp']]],86400); //1天
+                Cache::set('noncestr_'.$data[$this->config['fields']['noncestr']].($ip ?? ''),[$data[$this->config['fields']['noncestr']], $data[$this->config['fields']['timestamp']]]);
             }
         }
     }
