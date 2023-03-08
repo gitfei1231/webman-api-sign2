@@ -36,10 +36,11 @@ return [
 
     //字段对照，可从(header,get,post)获取的值
     'fields' => [
-        'app_key' => 'appId', //app_key
-        'timestamp' => 'timestamp', //时间戳
-        'noncestr' => 'nonceStr', //随机字符串
-        'signature' => 'signature', //签名字符串
+        'app_id'     => 'appId',     //app_id
+        'app_key'    => 'appKey',    //app_key rsa加密才需要传，appKey为前端随机生成的app_secret秘钥，用于加密sign和报文数据
+        'timestamp'  => 'timestamp', //时间戳
+        'noncestr'   => 'nonceStr',  //随机字符串
+        'signature'  => 'signature', //签名字符串
     ],
 
     //driver为ArrayDriver时生效，对应table

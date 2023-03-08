@@ -23,23 +23,24 @@ return [
 
     /**
      * 如果使用 DatabaseDriver 需要缓存查询后的数据
-     * 设置缓存时间即可缓存对应的app_key数据
+     * 设置缓存时间即可缓存对应的app_id数据
      * db_cache_time => null 关闭缓存
      */
     'db_cache_time' => 604800, // null 关闭缓存
 
     //字段对照，可从(header,get,post)获取的值
     'fields' => [
-        'app_key' => 'appId', //app_key
-        'timestamp' => 'timestamp', //时间戳
-        'noncestr' => 'nonceStr', //随机字符串
-        'signature' => 'signature', //签名字符串
+        'app_id'     => 'appId',     //app_id
+        'app_key'    => 'appKey',    //app_key rsa加密才需要传，appKey为前端随机生成的app_secret秘钥，用于加密sign和报文数据
+        'timestamp'  => 'timestamp', //时间戳
+        'noncestr'   => 'nonceStr',  //随机字符串
+        'signature'  => 'signature', //签名字符串
     ],
 
     //driver为ArrayDriver时生效，对应table
     'app_sign' => [
         [
-            'app_key' => '1661408635', //应用key
+            'app_id' => '1661408635', //应用key
             'app_name' => '默认', //应用名称
             'status' => 1,        //状态：0=禁用，1=启用
             'expired_at' => null, //过期时间，例如：2023-01-01 00:00:00，null不限制

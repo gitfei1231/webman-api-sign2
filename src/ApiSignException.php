@@ -11,7 +11,4 @@ class ApiSignException extends \Exception
     const SIGN_VERIFY_FAIL = 1004; //签名验证失败
     const SIGN_TIMEOUT = 1005; //签名超时
     const REQUEST_INVALID = 1006; //请求失效
-
-    const CONTENT_EMPTY = 1007; //加密内容为空
-    const KEY_EMPTY = 1008; //加密key为空
 }

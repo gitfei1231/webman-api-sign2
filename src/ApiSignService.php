@@ -2,7 +2,7 @@
 
 namespace Wengg\WebmanApiSign;
 use think\facade\Cache;
-use Wengg\WebmanApiSign\common\Util;
+use Wengg\WebmanApiSign\Encryption\Util;
 
 class ApiSignService
 {
@@ -68,12 +68,12 @@ class ApiSignService
     public function sign(array $data, string $key)
     {
         unset($data[$this->config['fields']['signature']]);
-        if (!isset($data[$this->config['fields']['app_key']]) || !isset($data[$this->config['fields']['timestamp']]) || !isset($data[$this->config['fields']['noncestr']])) {
+        if (!isset($data[$this->config['fields']['app_id']]) || !isset($data[$this->config['fields']['timestamp']]) || !isset($data[$this->config['fields']['noncestr']])) {
             throw new ApiSignException("签名参数错误", ApiSignException::PARAMS_ERROR);
         }
 
         //应用数据
-        $app_sign = $this->driver->getInfo($data[$this->config['fields']['app_key']]);
+        $app_sign = $this->driver->getInfo($data[$this->config['fields']['app_id']]);
         if (!$app_sign) {
             throw new ApiSignException("应用key未找到", ApiSignException::APPKEY_NOT_FOUND);
         }

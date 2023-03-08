@@ -18,10 +18,10 @@ class ArrayDriver implements BaseDriver
         $this->config = $config;
     }
 
-    public function getInfo(string $app_key)
+    public function getInfo(string $app_id)
     {
         $list = $this->config[$this->config['table']] ?? [];
-        $list && $list = array_combine(array_column($list, 'app_key'), $list);
-        return $list[$app_key] ?? [];
+        $list && $list = array_combine(array_column($list, 'app_id'), $list);
+        return $list[$app_id] ?? [];
     }
 }

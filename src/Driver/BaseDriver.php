@@ -9,5 +9,5 @@ interface BaseDriver
      * @return array
      * @author mosquito <zwj1206_hi@163.com> 2022-08-25
      */
-    public function getInfo(string $app_key);
+    public function getInfo(string $app_id);
 }
