@@ -92,7 +92,6 @@ Route::get('/login', [app\api\controller\LoginController::class, 'login']);
 1. app_secret 客户端自行生成
 2. sign使用自动生成的app_secret按照下面签名算法客户端计算出来
 3. 使用公钥加密app_secret，通过header中的appKey字段进行传输（未开启rsa，此字段不用传）
-```
 
 ### RS256 生成 公钥和私钥
 ```php
