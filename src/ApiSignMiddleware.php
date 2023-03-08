@@ -70,7 +70,7 @@ class ApiSignMiddleware implements MiddlewareInterface
                 throw new ApiSignException("加密报文解析错误", ApiSignException::BODY_ERROR);
             }
             
-            $data = array_merge($request->get(), $postData ?? [], $data);
+            $data = array_merge($postData ?? $request->post(), $request->get(), $data);
             $service->check($data, $key);
         }
 

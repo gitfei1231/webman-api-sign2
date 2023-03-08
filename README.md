@@ -99,7 +99,7 @@ ssh-keygen -t rsa -b 4096 -E SHA256 -m PEM -P "" -f RS256.key
 openssl rsa -in RS256.key -pubout -outform PEM -out RS256.key.pub
 ```
 
-# 开启body报文加密 encrypt_body，非明文传输参数安全性更高
+# 开启body报文加密 encrypt_body，非明文传输参数安全性更高（不加密get参数）
 注意：如果启用的RSA，那么需使用自行随机动态生成app_secret进行对称加密（否则使用服务端固定的app_secret进行对称加密）
 
 接口使用https已经可以达到报文加密的作用了，开发这个为啥？因为防止 “中间人”抓包，使用代理软件抓包可以获取https明文数据
@@ -161,6 +161,28 @@ class AES
         
         $plaintext = openssl_decrypt($ciphertext, $this->method, $this->key, 1, $iv);
         return $plaintext;
+    }
+}
+```
+
+# 再support/Request.php新增方法
+```php
+class Request extends \Webman\Http\Request
+{
+    /**
+     * 设置post参数
+     * @author tangfei <957987132@qq.com> 2023-03-07
+     * @param array $data
+     * @return void
+     */
+    public function setPostData(array $data)
+    {
+        if(empty($data)){ return; }
+        $this->post();
+                
+        foreach ($data as $key => $value) {
+            $this->_data['post'][$key] = $value;
+        }
     }
 }
 ```
