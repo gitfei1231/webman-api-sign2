@@ -86,15 +86,16 @@ Route::get('/login', [app\api\controller\LoginController::class, 'login']);
 ```
 
 # 开启非对称加密 rsa_status
-注意：开启后客户端需自行随机动态生成app_secret（非使用服务端固定的app_secret），用公钥进行加密app_secret和sign，服务器端会进行解密出app_secret生成sign进行比对
+注意：开启后客户端需自行随机动态生成app_secret（非使用服务端固定的app_secret），用公钥进行加密app_secret和sign，服务器端会进行解密出app_secret生成sign进行比对，开启非对称加密后，那么post提交的报文也需要加密
 1. app_secret 自行生成
 2. sign按照下面签名算法客户端计算出来
-2. 传输的sign内容，务必是客户端加密的app_secret+sign的json字符串（字段名称不可修改）
+3. 传输的sign内容，务必是客户端加密的app_secret+sign的json字符串（字段名称不可修改）
 ```json
 {
     "app_secret":"D81668E7B3F24F4DAB32E5B88EAE27AC", 
     "sign":"ddb51f231d674335671f0a3d89f8ea3592d8f480b23fb1374e7fa2d6d3f3090a"
 }
+4. 将post的内容使用 app_secret 进行对称加密，后端对称加密是 openssl_encrypt 算法为 AES-128-CBC
 ```
 
 ### RS256 生成 公钥和私钥
