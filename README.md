@@ -102,6 +102,8 @@ openssl rsa -in RS256.key -pubout -outform PEM -out RS256.key.pub
 # 开启body报文加密 encrypt_body，非明文传输参数安全性更高
 注意：如果启用的RSA，那么需使用自行随机动态生成app_secret进行对称加密（否则使用服务端固定的app_secret进行对称加密）
 
+接口使用https已经可以达到报文加密的作用了，开发这个为啥？因为防止 “中间人”抓包，使用代理软件抓包可以获取https明文数据
+
 ##### 1、开启了rsa_status
 1. 把body传输的json数据进行转为字符串
 2. 使用自动生成的app_secret作为密钥进行aes-128-cbc对称加密
