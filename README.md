@@ -16,7 +16,7 @@ return [
      * 如需要自定义驱动，继承 \Wengg\WebmanApiSign\Driver\BaseDriver::class
     */
     'driver' => \Wengg\WebmanApiSign\Driver\ArrayDriver::class,
-    'encrypt' => 'sha256', //加密方式
+    'encrypt' => 'sha256', //加密sign方式
     'timeout' => 60, //timestamp超时时间秒，0不限制
     'table' => 'app_sign', //表名
 
@@ -29,7 +29,7 @@ return [
     
     /**
      * 如果使用 DatabaseDriver 需要缓存查询后的数据
-     * 设置缓存时间即可缓存对应的app_key数据
+     * 设置缓存时间即可缓存对应的app_id数据
      * db_cache_time => null 关闭缓存
      */
     'db_cache_time' => 604800, // null 关闭缓存
@@ -46,12 +46,13 @@ return [
     //driver为ArrayDriver时生效，对应table
     'app_sign' => [
         [
-            'app_key' => '1661408635', //应用key
+            'app_id' => '1661408635', //应用id
             'app_secret' => 'D81668E7B3F24F4DAB32E5B88EAE27AC', //应用秘钥
             'app_name' => '默认', //应用名称
             'status' => 1, //状态：0=禁用，1=启用
             'expired_at' => null, //过期时间，例如：2023-01-01 00:00:00，null不限制
-            'rsa_status' => 0, //状态：0=禁用，1=启用 启用RSA，主要用rsa加密sign+随机生成的app_secret
+            'encrypt_body' => 0, //状态：0=禁用，1=启用 算法：aes-128-cbc 是否加密body传入加密后的报文字符串，启用RSA需要使用自动生成的app_secret进行对称加密，否则使用固定的app_secret进行对称加密
+            'rsa_status' => 0, //状态：0=禁用，1=启用 启用RSA，主要用rsa加密随机生成的app_secret，而不使用固定app_secret
             /**
              * sign私钥 RS256加密
              */
@@ -87,16 +88,10 @@ Route::get('/login', [app\api\controller\LoginController::class, 'login']);
 ```
 
 # 开启非对称加密 rsa_status
-注意：开启后客户端需自行随机动态生成app_secret（非使用服务端固定的app_secret），用公钥进行加密app_secret和sign，服务器端会进行解密出app_secret生成sign进行比对，开启非对称加密后，那么post提交的报文也需要加密
-1. app_secret 自行生成
-2. sign按照下面签名算法客户端计算出来
-3. 传输的sign内容，务必是客户端加密的app_secret+sign的json字符串（字段名称不可修改）
-```json
-{
-    "app_secret":"D81668E7B3F24F4DAB32E5B88EAE27AC", 
-    "sign":"ddb51f231d674335671f0a3d89f8ea3592d8f480b23fb1374e7fa2d6d3f3090a"
-}
-4. 将post的内容使用 app_secret 进行对称加密，后端对称加密是 openssl_encrypt 算法为 AES-128-CBC
+注意：开启后客户端需自行随机动态生成app_secret（不开启则使用服务端固定的app_secret），用公钥进行加密app_secret，服务器端会进行解密出app_secret, 生成sign进行比对，非对称加密算法为 aes-128-cbc
+1. app_secret 客户端自行生成
+2. sign使用自动生成的app_secret按照下面签名算法客户端计算出来
+3. 使用公钥加密app_secret，通过header中的appKey字段进行传输（未开启rsa，此字段不用传）
 ```
 
 ### RS256 生成 公钥和私钥
@@ -105,8 +100,72 @@ ssh-keygen -t rsa -b 4096 -E SHA256 -m PEM -P "" -f RS256.key
 openssl rsa -in RS256.key -pubout -outform PEM -out RS256.key.pub
 ```
 
+# 开启body报文加密 encrypt_body，非明文传输参数安全性更高
+注意：如果启用的RSA，那么需使用自行随机动态生成app_secret进行对称加密（否则使用服务端固定的app_secret进行对称加密）
+
+##### 1、开启了rsa_status
+1. 把body传输的json数据进行转为字符串
+2. 使用自动生成的app_secret作为密钥进行aes-128-cbc对称加密
+3. 将加密后的字符串直接通过body进行传输
+
+##### 2、未开启rsa_status
+1. 把body传输的json数据进行转为字符串
+2. 使用固定的app_secret作为密钥进行aes-128-cbc对称加密
+3. 将加密后的字符串直接通过body进行传输
+
+
+# php对称加密代码例子
+##### Tips：前端客户端很多加密解密参考php端自行实现加密和解密
+```php
+class AES
+{
+    private $key;
+    private $method = 'aes-128-cbc';
+    
+    public function __construct($key)
+    {
+        $this->key = $key;
+    }
+    
+    /**
+     * 加密
+     * @author tangfei <957987132@qq.com> 2023-03-07
+     * @param string $plaintext 加密内容
+     * @return string
+     */
+    public function encrypt(string $plaintext)
+    {
+        // 获取加密算法要求的初始化向量的长度
+        $ivlen = openssl_cipher_iv_length($this->method);
+        // 生成对应长度的初始化向量. aes-128模式下iv长度是16个字节, 也可以自由指定.
+        $iv = openssl_random_pseudo_bytes($ivlen);
+        // 加密数据
+        $ciphertext = openssl_encrypt($plaintext, $this->method, $this->key, 1, $iv);
+        
+        return base64_encode($iv . $ciphertext);
+    }
+
+    /**
+     * 解密
+     * @author tangfei <957987132@qq.com> 2023-03-07
+     * @param string $ciphertext 加密内容
+     * @return string
+     */
+    public function decrypt($ciphertext)
+    {
+        $ciphertext = base64_decode($ciphertext);
+        $ivlen = openssl_cipher_iv_length($this->method);
+        $iv = substr($ciphertext, 0, $ivlen);
+        $ciphertext = substr($ciphertext, $ivlen);
+        
+        $plaintext = openssl_decrypt($ciphertext, $this->method, $this->key, 1, $iv);
+        return $plaintext;
+    }
+}
+```
+
 # 签名计算
-注意：签名数据除业务参数外需加上app_key，timestamp，nonceStr对应的字段数据
+注意：签名数据除业务参数外需加上app_key，timestamp，nonceStr对应的字段数据，上面的加密报文和签名sign计算不相干，sign还是按照传输的字段进行计算，密文到后端会转为字段后再进行sign计算
 1. 签名数据先按照键名升序排序
 2. 使用 & 链接签名数组（参数不转义，空数据不参与加密），再在尾部加上app_secret
 3. 再根据配置的加密方式 hash() 签名数据

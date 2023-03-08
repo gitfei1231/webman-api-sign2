@@ -7,6 +7,7 @@ use Webman\Http\Response;
 use Webman\MiddlewareInterface;
 use Wengg\WebmanApiSign\Encryption\RSA;
 use Wengg\WebmanApiSign\Encryption\AES;
+use Wengg\WebmanApiSign\Encryption\DES;
 
 class ApiSignMiddleware implements MiddlewareInterface
 {
@@ -29,31 +30,42 @@ class ApiSignMiddleware implements MiddlewareInterface
                 $fields['noncestr'] => $request->header($fields['noncestr'], $request->input($fields['noncestr'])),
                 $fields['signature'] => $request->header($fields['signature'], $request->input($fields['signature'])),
             ];
-            
+
             $app_info = $service->getDriver()->getInfo($data[$fields['app_id']]);
             if(empty($app_info)){
-                throw new ApiSignException("签名参数错误", ApiSignException::PARAMS_ERROR);
+                throw new ApiSignException("应用id未找到", ApiSignException::APPKEY_NOT_FOUND);
             }
 
-            //判断是否启用rsa算法，解密body数据
-            if($app_info['rsa_status'] && !empty($data[$fields['app_key']]) && !empty($request->rawBody())){
+            //判断是否启用rsa算法
+            if($app_info['rsa_status']){
+                if(empty($data[$fields['app_key']])){
+                    throw new ApiSignException("签名参数错误", ApiSignException::PARAMS_ERROR);
+                }
                 try{
                     $key  = RSA::rsa_decode($data[$fields['app_key']], $app_info['private_key']);
-                    //解密数据
-                    $rawData = $request->rawBody();
-                    if(!empty($key)){
-                        $aes = new AES($key);
-                        $postData = $aes->decrypt($rawData);
-                        $request->setPostData($postData);
-                    }
-                    
                 } catch ( \Exception $e ) {
-                    throw new ApiSignException("签名参数错误：".$e->getMessage(), ApiSignException::PARAMS_ERROR);
+                    throw new ApiSignException("app_key解析错误", ApiSignException::APPKEY_ERROR);
                 }
             }else{
                 $key = $app_info['app_secret'];
             }
-            
+
+            //解密数据
+            try{
+                if($app_info['encrypt_body'] && !empty($key)){
+                    $rawData = $request->rawBody();
+                    if(empty($rawData)){
+                        throw new ApiSignException("加密报文不存在", ApiSignException::BODY_EMPTY);
+                    }
+
+                    $aes = new AES($key);
+                    $postData = $aes->decrypt($rawData);
+                    $request->setPostData($postData);
+                }
+            } catch ( \Exception $e ) {
+                throw new ApiSignException("加密报文解析错误", ApiSignException::BODY_ERROR);
+            }
+
             $data = array_merge($request->all(), $data);
 
             $service->check($data, $key);

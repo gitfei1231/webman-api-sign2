@@ -10,7 +10,7 @@ return [
      * 如需要自定义驱动，继承 \Wengg\WebmanApiSign\Driver\BaseDriver::class
     */
     'driver' => \Wengg\WebmanApiSign\Driver\ArrayDriver::class,
-    'encrypt' => 'sha256', //加密方式,
+    'encrypt' => 'sha256', //加密sign方式,
     'timeout' => 60, //timestamp超时时间秒，0不限制
     'table' => 'app_sign', //表名
     
@@ -40,12 +40,13 @@ return [
     //driver为ArrayDriver时生效，对应table
     'app_sign' => [
         [
-            'app_id' => '1661408635', //应用key
+            'app_id' => '1661408635', //应用id
             'app_name' => '默认', //应用名称
             'status' => 1,        //状态：0=禁用，1=启用
             'expired_at' => null, //过期时间，例如：2023-01-01 00:00:00，null不限制
             'app_secret' => 'D81668E7B3F24F4DAB32E5B88EAE27AC', //应用秘钥 不启用RSA使用
-            'rsa_status' => 0, //状态：0=禁用，1=启用 启用RSA，主要用rsa加密sign+随机生成的app_secret
+            'encrypt_body' => 0, //状态：0=禁用，1=启用 算法：aes-128-cbc 是否加密body传入加密后的报文字符串，启用RSA需要使用自动生成的app_secret进行对称加密，否则使用固定的app_secret进行对称加密
+            'rsa_status' => 0, //状态：0=禁用，1=启用 启用RSA，主要用rsa加密随机生成的app_secret，而不使用固定app_secret
             /**
              * sign私钥 RS256加密
              */

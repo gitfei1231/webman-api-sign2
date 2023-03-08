@@ -75,13 +75,13 @@ class ApiSignService
         //应用数据
         $app_sign = $this->driver->getInfo($data[$this->config['fields']['app_id']]);
         if (!$app_sign) {
-            throw new ApiSignException("应用key未找到", ApiSignException::APPKEY_NOT_FOUND);
+            throw new ApiSignException("应用id未找到", ApiSignException::APPKEY_NOT_FOUND);
         }
         if ($app_sign['status'] != 1) {
-            throw new ApiSignException("应用key已禁用", ApiSignException::APPKEY_DISABLE);
+            throw new ApiSignException("应用id已禁用", ApiSignException::APPKEY_DISABLE);
         }
         if ($app_sign['expired_at'] && $app_sign['expired_at'] < date('Y-m-d H:i:s')) {
-            throw new ApiSignException("应用key已过期", ApiSignException::APPKEY_EXPIRED);
+            throw new ApiSignException("应用id已过期", ApiSignException::APPKEY_EXPIRED);
         }
 
         $data = $this->sortData($data);
