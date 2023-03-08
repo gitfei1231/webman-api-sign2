@@ -14,4 +14,5 @@ class ApiSignException extends \Exception
     const APPKEY_ERROR = 1007; //app_key解析错误
     const BODY_ERROR = 1008; //encrypt_body解析错误
     const BODY_EMPTY = 1009; //encrypt_body加密报文不存在
+    const JSON_ERROR = 1010; //加密报文必须为JSON字符串
 }

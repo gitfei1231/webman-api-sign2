@@ -57,17 +57,20 @@ class ApiSignMiddleware implements MiddlewareInterface
                     if(empty($rawData)){
                         throw new ApiSignException("加密报文不存在", ApiSignException::BODY_EMPTY);
                     }
-
+                    
                     $aes = new AES($key);
                     $postData = $aes->decrypt($rawData);
+                    $postData = \json_decode($postData, true);
+                    if(!is_array($postData)){
+                        throw new ApiSignException("加密报文必须为JSON字符串", ApiSignException::JSON_ERROR);
+                    }
                     $request->setPostData($postData);
                 }
             } catch ( \Exception $e ) {
                 throw new ApiSignException("加密报文解析错误", ApiSignException::BODY_ERROR);
             }
-
-            $data = array_merge($request->all(), $data);
-
+            
+            $data = array_merge($request->get(), $postData ?? [], $data);
             $service->check($data, $key);
         }
 

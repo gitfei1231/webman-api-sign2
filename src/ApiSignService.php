@@ -67,6 +67,7 @@ class ApiSignService
      */
     public function sign(array $data, string $key)
     {
+        unset($data[$this->config['fields']['app_key']]);
         unset($data[$this->config['fields']['signature']]);
         if (!isset($data[$this->config['fields']['app_id']]) || !isset($data[$this->config['fields']['timestamp']]) || !isset($data[$this->config['fields']['noncestr']])) {
             throw new ApiSignException("签名参数错误", ApiSignException::PARAMS_ERROR);

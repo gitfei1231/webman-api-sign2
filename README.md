@@ -213,5 +213,8 @@ a=1&appId=1661408635&b[0]=你好世界&b[1]=abc123&c[d]=hello&nonceStr=ewsqam&ti
 ```
 加密
 ```php
+// $data = sortData($data);
+// $str = urldecode(http_build_query($data)) . $key;
+// $signature = hash('sha256', $str);
 $signature = hash('sha256', 'a=1&appId=1661408635&b[0]=你好世界&b[1]=abc123&c[d]=hello&nonceStr=ewsqam&timestamp=1662721474D81668E7B3F24F4DAB32E5B88EAE27AC');
 ```
