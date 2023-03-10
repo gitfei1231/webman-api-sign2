@@ -7,7 +7,6 @@ use Webman\Http\Response;
 use Webman\MiddlewareInterface;
 use Wengg\WebmanApiSign\Encryption\RSA;
 use Wengg\WebmanApiSign\Encryption\AES;
-use Wengg\WebmanApiSign\Encryption\DES;
 
 class ApiSignMiddleware implements MiddlewareInterface
 {
@@ -16,7 +15,13 @@ class ApiSignMiddleware implements MiddlewareInterface
         // 默认路由 $request->route 为null，所以需要判断 $request->route 是否为空
         $route = $request->route;
 
-        if ($route && !$route->param('notSign')) {
+        // 获取控制器信息
+        $class = new \ReflectionClass($request->controller);
+        $properties = $class->getDefaultProperties();
+        $noNeedSign = array_map('strtolower', $properties['noNeedSign'] ?? []);
+        $isSign = in_array(strtolower($request->action), $noNeedSign) || in_array('*', $noNeedSign);
+        
+        if (($route && !$route->param('notSign')) || !$isSign) {
             $service = new ApiSignService;
             $config = $service->getConfig();
             if (!$config) {

@@ -86,6 +86,27 @@ Route::get('/login', [app\api\controller\LoginController::class, 'login'])->setP
 // 此路由经过sign验证
 Route::get('/login', [app\api\controller\LoginController::class, 'login']);
 ```
+```php
+// 控制器中配置排除sign校验
+class TestController
+{
+    /**
+     * 无需sign校验
+     * index、save不需要校验 ['index','save']
+     * 所有方法都不需要sign校验 ['*'] 
+     * @var string[]
+     */
+    protected $noNeedSign = ['login'];
+
+    /**
+     * 登录
+     */
+    public function login()
+    {
+
+    }
+}
+```
 
 # 开启非对称加密 rsa_status
 注意：开启后客户端需自行随机动态生成app_secret（不开启则使用服务端固定的app_secret），用公钥进行加密app_secret，服务器端会进行解密出app_secret, 生成sign进行比对，非对称加密算法为 aes-128-cbc
