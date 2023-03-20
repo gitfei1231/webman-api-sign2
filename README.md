@@ -261,3 +261,87 @@ a=1&appId=1661408635&b[0]=你好世界&b[1]=abc123&c[d]=hello&nonceStr=ewsqam&ti
 // $signature = hash('sha256', $str);
 $signature = hash('sha256', 'a=1&appId=1661408635&b[0]=你好世界&b[1]=abc123&c[d]=hello&nonceStr=ewsqam&timestamp=1662721474D81668E7B3F24F4DAB32E5B88EAE27AC');
 ```
+
+### 提供一个js http_build_query 比较高效的写法
+```js
+// 该函数的实现方式和 PHP 中的 http_build_query
+function http_build_query(data, prefix = null) {
+  const queryParts = [];
+
+  for (const [key, value] of Object.entries(data)) {
+    // 处理数组和对象
+    if (typeof value === "object" && value !== null) {
+      // 判断是否为空数组或空对象
+      if (Array.isArray(value) && value.length === 0) {
+        continue;
+      }
+      if (Object.keys(value).length === 0) {
+        continue;
+      }
+      const newPrefix = prefix ? `${prefix}[${encodeURIComponent(key)}]` : encodeURIComponent(key);
+      queryParts.push(http_build_query(value, newPrefix));
+    }
+    // 处理 true 值
+    else if (value === true) {
+      const encodedKey = encodeURIComponent(prefix ? `${prefix}[${encodeURIComponent(key)}]` : encodeURIComponent(key));
+      queryParts.push(`${encodedKey}=1`);
+    } 
+    // 处理 false 值
+    else if (value === false) {
+      const encodedKey = encodeURIComponent(prefix ? `${prefix}[${encodeURIComponent(key)}]` : encodeURIComponent(key));
+      queryParts.push(`${encodedKey}=0`); // 加上等号
+    }
+    // 处理 null 值
+    else if (value === null) {
+      // 空值直接跳过
+      continue;
+      // const encodedKey = encodeURIComponent(prefix ? `${prefix}[${encodeURIComponent(key)}]` : encodeURIComponent(key));
+      // queryParts.push(`${encodedKey}=`); // 加上等号
+    }
+    // 处理普通值
+    else {
+      const encodedKey = encodeURIComponent(prefix ? `${prefix}[${encodeURIComponent(key)}]` : encodeURIComponent(key));
+      const encodedValue = encodeURIComponent(value);
+      queryParts.push(`${encodedKey}=${encodedValue}`);
+    }
+  }
+  
+  return queryParts.join('&');
+}
+```
+
+### 提供一个js sortData 排序方法
+```js
+function sortData(data, sortOrder = "asc") {
+  const compareFunction = (a, b) => {
+    if (a === b) {
+      return 0;
+    }
+    return sortOrder === "desc" ? (a > b ? -1 : 1) : (a < b ? -1 : 1);
+  };
+
+  if (Array.isArray(data)) {
+    return data.sort(compareFunction).map((value) =>
+      typeof value === "object" && value !== null
+        ? sortData(value, sortOrder)
+        : value
+    );
+  }
+
+  if (typeof data === "object" && data !== null) {
+    const sortedObject = {};
+    const sortedKeys = Object.keys(data).sort(compareFunction);
+
+    for (const key of sortedKeys) {
+      sortedObject[key] =
+        typeof data[key] === "object" && data[key] !== null
+          ? sortData(data[key], sortOrder)
+          : data[key];
+    }
+
+    return sortedObject;
+  }
+
+  return data;
+}
+```
