@@ -14,7 +14,7 @@ class RSA
      */
     public static function rsa_encode(string $content, string $public_key)
     {
-        $publicKey = CryptRSA::loadPublicKey($public_key);
+        $publicKey = CryptRSA::loadPublicKey($public_key)->withPadding(CryptRSA::ENCRYPTION_PKCS1);
         $encodeStr = base64_encode($publicKey->encrypt($content));
         
         return $encodeStr;
@@ -29,7 +29,7 @@ class RSA
      */
     public static function rsa_decode(string $encodeStr, string $private_key)
     {
-        $privateKey = CryptRSA::loadPrivateKey($private_key);
+        $privateKey = CryptRSA::loadPrivateKey($private_key)->withPadding(CryptRSA::ENCRYPTION_PKCS1);
         $content = base64_decode($encodeStr);
         $decodeStr = $privateKey->decrypt($content);
         

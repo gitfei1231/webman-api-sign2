@@ -109,15 +109,101 @@ class TestController
 ```
 
 # 开启非对称加密 rsa_status
-注意：开启后客户端需自行随机动态生成app_secret（不开启则使用服务端固定的app_secret），用公钥进行加密app_secret，服务器端会进行解密出app_secret, 生成sign进行比对，非对称加密算法为 aes-128-cbc
+注意：开启后客户端需自行随机动态生成app_secret（不开启则使用服务端固定的app_secret），用公钥进行加密app_secret，服务器端会进行解密出app_secret, 生成sign进行比对。
+
+> 非对称加密算法为 RSAES-PKCS1-V1_5
+
 1. app_secret 客户端自行生成
 2. sign使用自动生成的app_secret按照下面签名算法客户端计算出来
 3. 使用公钥加密app_secret，通过header中的appKey字段进行传输（未开启rsa，此字段不用传）
 
-### RS256 生成 公钥和私钥
+
+### php端非对称加密和解密代码例子
 ```php
-ssh-keygen -t rsa -b 4096 -E SHA256 -m PEM -P "" -f RS256.key
-openssl rsa -in RS256.key -pubout -outform PEM -out RS256.key.pub
+<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+
+//当前库
+use Wengg\WebmanApiSign\Encryption\RSA;
+
+///=================================下面是生成公钥和私钥================================///
+$rsa = new RSA();
+
+// 生成公钥和私钥
+$data = $rsa->rsa_create();
+
+echo "私钥：\n";
+echo $data['private_key'];
+echo "\n";
+echo "\n";
+echo "公钥：\n";
+echo $data['public_key'];
+
+///=================================下面是解密 加密=================================///
+
+// 私钥，可以使用 上面生成 $data['private_key']
+$private_key = '-----BEGIN PRIVATE KEY-----
+xxxxxxxxxxxxxx
+-----END PRIVATE KEY-----
+';
+
+// 公钥，可以使用 上面生成 $data['public_key']
+$public_key = '-----BEGIN PUBLIC KEY-----
+xxxxxxxxxxxxxx
+-----END PUBLIC KEY-----
+';
+
+// 加密内容
+$str1 = "你好，二蛋！";
+
+$str2 = $rsa->rsa_encode($str1, $public_key);
+
+echo "加密内容：\n";
+echo $str2;
+echo "\n";
+echo "\n";
+
+$res = $rsa->rsa_decode($str2, $private_key);
+
+echo "解密内容：\n";
+echo $res;
+```
+
+### js端非对称加密和解密代码例子
+```js
+const rs = require('jsrsasign');
+const fs = require('fs');
+
+// 加载私钥和公钥
+const private_key = fs.readFileSync('./key/private.pem', 'utf8');
+const public_key = fs.readFileSync('./key/public.pem', 'utf8');
+
+// 待加密的数据
+const data = 'Hello, world!';
+
+// 解析公钥，将字符串转换为 KeyObject 对象
+const publicKeyObj = rs.KEYUTIL.getKey(public_key);
+
+// 使用公钥加密数据
+const encryptedData = publicKeyObj.encrypt(data, 'RSAES-PKCS1-V1_5');
+
+// 将加密后的数据转换成 Base64 编码
+const base64CipherText = rs.hex2b64(encryptedData);
+
+// 输出加密后的数据
+console.log(`加密后的数据：${base64CipherText}`);
+
+// 将 Base64 编码的密文还原成二进制数据
+const binaryCiphertext = rs.b64tohex(base64CipherText);
+
+// 解析私钥，将字符串转换为 KeyObject 对象
+const privateKeyObj = rs.KEYUTIL.getKey(private_key);
+
+// 使用私钥解密数据
+const decryptedData = privateKeyObj.decrypt(binaryCiphertext, 'RSAES-PKCS1-V1_5');
+
+// 输出解密后的数据
+console.log(`解密后的数据：${decryptedData}`);
 ```
 
 # 开启body报文加密 encrypt_body，非明文传输参数安全性更高（不加密get参数）
