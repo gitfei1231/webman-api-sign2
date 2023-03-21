@@ -209,6 +209,8 @@ console.log(`解密后的数据：${decryptedData}`);
 # 开启body报文加密 encrypt_body，非明文传输参数安全性更高（不加密get参数）
 注意：如果启用的RSA，那么需使用自行随机动态生成app_secret进行对称加密（否则使用服务端固定的app_secret进行对称加密）
 
+> app_secret秘钥必须为32位，如：3ddc81a729c34c50b097a098b0512f16
+
 接口使用https已经可以达到报文加密的作用了，开发这个为啥？因为防止 “中间人”抓包，使用代理软件抓包可以获取https明文数据
 
 ##### 1、开启了rsa_status
@@ -230,7 +232,8 @@ namespace Wengg\WebmanApiSign\Encryption;
 // 当前库就用的此类
 class AES
 {
-    private $key;
+    //$key秘钥必须为32位，如：3ddc81a729c34c50b097a098b0512f16
+    private $key; 
     private $method = 'aes-128-cbc';
     
     public function __construct($key)
@@ -279,6 +282,7 @@ const CryptoJS = require("crypto-js");
 
 class AES {
   constructor(key) {
+    //key秘钥必须为32位，如：3ddc81a729c34c50b097a098b0512f16
     this.key = key;
     this.method = "aes-128-cbc";
   }
