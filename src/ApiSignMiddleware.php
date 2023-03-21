@@ -54,15 +54,12 @@ class ApiSignMiddleware implements MiddlewareInterface
             }else{
                 $key = $app_info['app_secret'];
             }
-
+            
             //解密数据
             try{
-                if($app_info['encrypt_body'] && !empty($key)){
-                    $rawData = $request->rawBody();
-                    if(empty($rawData)){
-                        throw new ApiSignException("加密报文不存在", ApiSignException::BODY_EMPTY);
-                    }
-                    
+                $rawData = $request->rawBody();
+                if($app_info['encrypt_body'] && !empty($key) && !empty($rawData))
+                {
                     $aes = new AES($key);
                     $postData = $aes->decrypt($rawData);
                     $postData = \json_decode($postData, true);
