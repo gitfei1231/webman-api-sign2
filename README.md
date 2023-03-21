@@ -223,8 +223,11 @@ console.log(`解密后的数据：${decryptedData}`);
 
 
 # php对称加密代码例子
-##### Tips：前端客户端很多加密解密参考php端自行实现加密和解密
 ```php
+<?php
+namespace Wengg\WebmanApiSign\Encryption;
+
+// 当前库就用的此类
 class AES
 {
     private $key;
@@ -232,12 +235,11 @@ class AES
     
     public function __construct($key)
     {
-        $this->key = $key;
+        $this->key = hex2bin($key);
     }
     
     /**
      * 加密
-     * @author tangfei <957987132@qq.com> 2023-03-07
      * @param string $plaintext 加密内容
      * @return string
      */
@@ -248,14 +250,13 @@ class AES
         // 生成对应长度的初始化向量. aes-128模式下iv长度是16个字节, 也可以自由指定.
         $iv = openssl_random_pseudo_bytes($ivlen);
         // 加密数据
-        $ciphertext = openssl_encrypt($plaintext, $this->method, $this->key, 1, $iv);
+        $ciphertext = openssl_encrypt($plaintext, $this->method, $this->key, OPENSSL_RAW_DATA, $iv);
         
         return base64_encode($iv . $ciphertext);
     }
 
     /**
      * 解密
-     * @author tangfei <957987132@qq.com> 2023-03-07
      * @param string $ciphertext 加密内容
      * @return string
      */
@@ -266,11 +267,80 @@ class AES
         $iv = substr($ciphertext, 0, $ivlen);
         $ciphertext = substr($ciphertext, $ivlen);
         
-        $plaintext = openssl_decrypt($ciphertext, $this->method, $this->key, 1, $iv);
+        $plaintext = openssl_decrypt($ciphertext, $this->method, $this->key, OPENSSL_RAW_DATA, $iv);
         return $plaintext;
     }
 }
 ```
+
+# JS端对称加密/解密类，可与本库加解密互通
+```js
+const CryptoJS = require("crypto-js");
+
+class AES {
+  constructor(key) {
+    this.key = key;
+    this.method = "aes-128-cbc";
+  }
+
+  encrypt(plaintext) {
+    const iv = CryptoJS.lib.WordArray.random(16);
+    const ciphertext = CryptoJS.AES.encrypt(
+      plaintext,
+      this.key,
+      { iv: iv, padding: CryptoJS.pad.Pkcs7, mode: CryptoJS.mode.CBC }
+    );
+    return iv.concat(ciphertext.ciphertext).toString(CryptoJS.enc.Base64);
+  }
+
+  decrypt(ciphertext) {
+    ciphertext = CryptoJS.enc.Base64.parse(ciphertext);
+    const iv = ciphertext.clone();
+    iv.sigBytes = 16;
+    iv.clamp();
+    ciphertext.words.splice(0, 4); // remove IV from ciphertext
+    ciphertext.sigBytes -= 16;
+    const decrypted = CryptoJS.AES.decrypt(
+      { ciphertext: ciphertext },
+      this.key,
+      { iv: iv, padding: CryptoJS.pad.Pkcs7, mode: CryptoJS.mode.CBC }
+    );
+    const plaintext = decrypted.toString(CryptoJS.enc.Utf8);
+    return plaintext;
+  }
+
+  toHex() {
+    return this.key.toString(CryptoJS.enc.Hex);
+  }
+
+  static fromHex(hexString) {
+    return new AES(CryptoJS.enc.Hex.parse(hexString));
+  }
+
+  static fromBase64(base64String) {
+    return new AES(CryptoJS.enc.Base64.parse(base64String));
+  }
+
+  toBase64() {
+    return this.key.toString(CryptoJS.enc.Base64);
+  }
+}
+
+// 秘钥
+const keyHex = '0123456789abcdef0123456789abcdef';
+const aes = AES.fromHex(keyHex);
+
+// 加密使用示例
+const plaintext = '你好，二蛋！';
+const encrypted = aes.encrypt(plaintext);
+console.log("加密内容：", encrypted);
+
+// 解密使用示例
+const str = aes.decrypt(encrypted);
+console.log("解密内容：", str);
+```
+>其他客户端语言加解密可以参考上面php/js端类进行编写
+
 
 # 再support/Request.php新增方法
 ```php

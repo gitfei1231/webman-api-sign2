@@ -8,12 +8,11 @@ class AES
     
     public function __construct($key)
     {
-        $this->key = $key;
+        $this->key = hex2bin($key);
     }
     
     /**
      * 加密
-     * @author tangfei <957987132@qq.com> 2023-03-07
      * @param string $plaintext 加密内容
      * @return string
      */
@@ -24,14 +23,13 @@ class AES
         // 生成对应长度的初始化向量. aes-128模式下iv长度是16个字节, 也可以自由指定.
         $iv = openssl_random_pseudo_bytes($ivlen);
         // 加密数据
-        $ciphertext = openssl_encrypt($plaintext, $this->method, $this->key, 1, $iv);
+        $ciphertext = openssl_encrypt($plaintext, $this->method, $this->key, OPENSSL_RAW_DATA, $iv);
         
         return base64_encode($iv . $ciphertext);
     }
 
     /**
      * 解密
-     * @author tangfei <957987132@qq.com> 2023-03-07
      * @param string $ciphertext 加密内容
      * @return string
      */
@@ -42,7 +40,7 @@ class AES
         $iv = substr($ciphertext, 0, $ivlen);
         $ciphertext = substr($ciphertext, $ivlen);
         
-        $plaintext = openssl_decrypt($ciphertext, $this->method, $this->key, 1, $iv);
+        $plaintext = openssl_decrypt($ciphertext, $this->method, $this->key, OPENSSL_RAW_DATA, $iv);
         return $plaintext;
     }
 }

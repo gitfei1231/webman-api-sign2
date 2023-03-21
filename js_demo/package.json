@@ -1,0 +1,16 @@
+{
+  "name": "cc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "1.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/jsrsasign": "^10.5.0",
+    "crypto-js": "^4.1.1",
+    "jsrsasign": "10.3.0"
+  }
+}
