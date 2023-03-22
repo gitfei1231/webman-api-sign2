@@ -1,5 +1,5 @@
 # webman-api-sign
-适用于webman的api签名，本插件基于 https://github.com/wen-gg/webman-api-sign 修改，不需要防止重放请求和RSA加密的直接使用原作者的插件即可。
+适用于webman项目的api签名，本插件基于 https://github.com/wen-gg/webman-api-sign 修改，不需要防止重放请求和RSA加密的直接使用原作者的插件即可。
 
 # 安装
 composer require gitfei1231/webman-api-sign
