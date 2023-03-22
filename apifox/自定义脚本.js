@@ -189,7 +189,7 @@ if (pm.request.body && pm.request.body.mode === 'raw') {
   }
 
   // 判断是否加密报文
-  if (encrypt_body == 1 && Object.keys(pm.request.body).length > 0) {
+  if (encrypt_body == 1 && pm.request.body.raw) {
     const aes = AES.fromHex(app_secret);
     const encrypted = aes.encrypt(pm.request.body.raw);
     pm.request.body.update(encrypted);
@@ -205,3 +205,4 @@ const sortedData = sortData(param);
 const str = decodeURIComponent(http_build_query(sortedData)) + app_secret;
 const signature = cryptoJs.SHA256(str).toString();
 pm.request.headers.upsert({ key: 's', value: signature }); //signature
+
