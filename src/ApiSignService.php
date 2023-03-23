@@ -107,7 +107,8 @@ class ApiSignService
         }
 
         $ts = time();
-        if ($this->config['timeout'] && $this->config['timeout'] > 0 && ($data[$this->config['fields']['timestamp']] + $this->config['timeout'] < $ts || $data[$this->config['fields']['timestamp']] > $ts)) {
+        // 优化时间 上下 timeout 内都正常
+        if ($this->config['timeout'] && $this->config['timeout'] > 0 && ($data[$this->config['fields']['timestamp']] + $this->config['timeout'] < $ts || $data[$this->config['fields']['timestamp']] - $this->config['timeout'] > $ts)) {
             throw new ApiSignException("签名超时", ApiSignException::SIGN_TIMEOUT);
         }
         if($this->config['replay']){
