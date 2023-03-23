@@ -20,8 +20,8 @@ if (is_rsa == 1) {
 
   // 解析公钥，将字符串转换为 KeyObject 对象
   const publicKeyObj = rs.KEYUTIL.getKey(public_key);
-  // 使用公钥加密数据
-  const encryptedData = publicKeyObj.encrypt(app_secret, 'RSAES-PKCS1-V1_5');
+  // 使用公钥加密数据 算法 'RSAES-PKCS1-V1_5'
+  const encryptedData = publicKeyObj.encrypt(app_secret);
   // 将加密后的数据转换成 Base64 编码
   const base64CipherText = rs.hex2b64(encryptedData);
   // 添加到头
