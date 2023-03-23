@@ -49,7 +49,7 @@ class ApiSignMiddleware implements MiddlewareInterface
                 try{
                     $key  = RSA::rsa_decode($data[$fields['app_key']], $app_info['private_key']);
                 } catch ( \Exception $e ) {
-                    throw new ApiSignException("app_key解析错误", ApiSignException::APPKEY_ERROR);
+                    throw new ApiSignException(config('app.debug') ? "密文解析错误：".$e->getMessage() : "密文解析错误", ApiSignException::APPKEY_ERROR);
                 }
             }else{
                 $key = $app_info['app_secret'];
