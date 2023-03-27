@@ -20,8 +20,8 @@ if (is_rsa == 1) {
 
   // 解析公钥，将字符串转换为 KeyObject 对象
   const publicKeyObj = rs.KEYUTIL.getKey(public_key);
-  // 使用公钥加密数据
-  const encryptedData = publicKeyObj.encrypt(app_secret, 'RSAES-PKCS1-V1_5');
+  // 使用公钥加密数据 算法 'RSAES-PKCS1-V1_5'
+  const encryptedData = publicKeyObj.encrypt(app_secret);
   // 将加密后的数据转换成 Base64 编码
   const base64CipherText = rs.hex2b64(encryptedData);
   // 添加到头
@@ -83,11 +83,12 @@ function sortData(data, sortOrder = "asc") {
   };
 
   if (Array.isArray(data)) {
-    return data.sort(compareFunction).map((value) =>
-      typeof value === "object" && value !== null
-        ? sortData(value, sortOrder)
-        : value
-    );
+    return Object.keys(data).sort(compareFunction).map((value) =>{
+      value = data[value];
+      return typeof value === "object" && value !== null
+      ? sortData(value, sortOrder)
+      : value
+    });
   }
 
   if (typeof data === "object" && data !== null) {
@@ -202,7 +203,7 @@ pm.request.headers.upsert({ key: 'n', value: noncestr }); //nonceStr
 
 //排序生成sign
 const sortedData = sortData(param);
+console.log(decodeURIComponent(http_build_query(sortedData)));
 const str = decodeURIComponent(http_build_query(sortedData)) + app_secret;
 const signature = cryptoJs.SHA256(str).toString();
 pm.request.headers.upsert({ key: 's', value: signature }); //signature
-

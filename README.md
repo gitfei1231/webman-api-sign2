@@ -481,11 +481,12 @@ function sortData(data, sortOrder = "asc") {
   };
 
   if (Array.isArray(data)) {
-    return data.sort(compareFunction).map((value) =>
-      typeof value === "object" && value !== null
-        ? sortData(value, sortOrder)
-        : value
-    );
+    return Object.keys(data).sort(compareFunction).map((value) =>{
+      value = data[value];
+      return typeof value === "object" && value !== null
+      ? sortData(value, sortOrder)
+      : value
+    });
   }
 
   if (typeof data === "object" && data !== null) {
