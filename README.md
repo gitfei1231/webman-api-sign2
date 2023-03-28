@@ -435,7 +435,7 @@ function http_build_query(data, prefix = null) {
       if (Array.isArray(value) && value.length === 0) {
         continue;
       }
-      if (Object.keys(value).length === 0) {
+      if (Object.prototype.toString.call(val[k]) === '[object Object]' && Object.keys(value).length === 0) {
         continue;
       }
       const newPrefix = prefix ? `${prefix}[${encodeURIComponent(key)}]` : encodeURIComponent(key);
