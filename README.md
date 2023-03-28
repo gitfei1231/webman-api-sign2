@@ -422,7 +422,7 @@ a=1&appId=1661408635&b[0]=你好世界&b[1]=abc123&c[d]=hello&nonceStr=ewsqam&ti
 $signature = hash('sha256', 'a=1&appId=1661408635&b[0]=你好世界&b[1]=abc123&c[d]=hello&nonceStr=ewsqam&timestamp=1662721474D81668E7B3F24F4DAB32E5B88EAE27AC');
 ```
 
-### 提供一个js http_build_query 比较高效的写法
+### 方法一：提供一个js http_build_query 比较高效的写法
 ```js
 // 该函数的实现方式和 PHP 中的 http_build_query
 function http_build_query(data, prefix = null) {
@@ -467,6 +467,118 @@ function http_build_query(data, prefix = null) {
   }
   
   return queryParts.join('&');
+}
+```
+
+### 方法二：提供一个locutus库中 js 仿php http_build_query 写法
+>修复了该库的方法在有空数组空对象时多出连续&符号问题
+
+```js
+function urldecode (str) {
+  return decodeURIComponent((str + '')
+    .replace(/%(?![\da-f]{2})/gi, function () {
+      // PHP tolerates poorly formed escape sequences
+      return '%25'
+    })
+    .replace(/\+/g, '%20'))
+}
+
+function rawurldecode (str) {
+  return decodeURIComponent((str + '')
+    .replace(/%(?![\da-f]{2})/gi, function () {
+      // PHP tolerates poorly formed escape sequences
+      return '%25'
+    }))
+}
+
+function urlencode (str) {
+  str = (str + '')
+  return encodeURIComponent(str)
+    .replace(/!/g, '%21')
+    .replace(/'/g, '%27')
+    .replace(/\(/g, '%28')
+    .replace(/\)/g, '%29')
+    .replace(/\*/g, '%2A')
+    .replace(/~/g, '%7E')
+    .replace(/%20/g, '+')
+}
+
+function rawurlencode (str) {
+  str = (str + '')
+  return encodeURIComponent(str)
+    .replace(/!/g, '%21')
+    .replace(/'/g, '%27')
+    .replace(/\(/g, '%28')
+    .replace(/\)/g, '%29')
+    .replace(/\*/g, '%2A')
+}
+
+function http_build_query (formdata, numericPrefix, argSeparator, encType) {
+  let encodeFunc
+
+  switch (encType) {
+    case 'PHP_QUERY_RFC3986':
+      encodeFunc = rawurlencode
+      break
+
+    case 'PHP_QUERY_RFC1738':
+    default:
+      encodeFunc = urlencode
+      break
+  }
+
+  let value
+  let key
+  const tmp = []
+
+  var _httpBuildQueryHelper = function (key, val, argSeparator) {
+    let k
+    const tmp = []
+    if (val === true) {
+      val = '1'
+    } else if (val === false) {
+      val = '0'
+    }
+    if (val !== null) {
+      if (typeof val === 'object') {
+        for (k in val) {
+          if (val[k] !== null) {
+            // 判断是否为空数组或空对象
+            if (Array.isArray(val[k]) && val[k].length === 0) {
+              continue;
+            }
+            if (Object.prototype.toString.call(val[k]) === '[object Object]' && Object.keys(val[k]).length === 0) {
+              continue;
+            }
+            tmp.push(_httpBuildQueryHelper(key + '[' + k + ']', val[k], argSeparator))
+          }
+        }
+        return tmp.join(argSeparator)
+      } else if (typeof val !== 'function') {
+        return encodeFunc(key) + '=' + encodeFunc(val)
+      } else {
+        throw new Error('There was an error processing for http_build_query().')
+      }
+    } else {
+      return ''
+    }
+  }
+
+  if (!argSeparator) {
+    argSeparator = '&'
+  }
+  for (key in formdata) {
+    value = formdata[key]
+    if (numericPrefix && !isNaN(key)) {
+      key = String(numericPrefix) + key
+    }
+    const query = _httpBuildQueryHelper(key, value, argSeparator)
+    if (query !== '') {
+      tmp.push(query)
+    }
+  }
+
+  return tmp.join(argSeparator)
 }
 ```
 
