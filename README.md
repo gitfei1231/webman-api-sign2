@@ -618,3 +618,64 @@ function sortData(data, sortOrder = "asc") {
   return data;
 }
 ```
+
+### 提供一个php sortData 排序方法
+```php
+/**
+ * 数据排序
+ * @param array $data
+ * @return array
+ */
+public function sortData(array $data)
+{
+    $sort = function (array &$data) use (&$sort) {
+        ksort($data);
+        foreach ($data as &$value) {
+            if (is_array($value)) {
+                $sort($value);
+            }
+        }
+    };
+    $sort($data);
+    return $data;
+}
+```
+
+## 测试js版本 http_build_query + sortData 对比 php版本 http_build_query + sortData
+> js版本使用的是上面 http_build_query方法(上面) + sortData方法(上面) + urldecode方法(上面)
+
+>php版本使用的http_build_query + sortData(上面) + urldecode
+```js
+console.log(urldecode(http_build_query(sortData({
+  "n": "ewsqam3",
+  "t": "1677933143",
+  "a": "1661408635",
+  "members": {
+      "p":{},
+      "o":[],
+      "f": "",
+      "a": null,
+      "b": 1,
+      "c": false,
+      "d": true,
+      "members": {
+          "c": true,
+          "a": 0,
+          "b": false,
+          "members": {
+              "s": false,
+              "e": true,
+              "f": 0,
+              "g": null,
+              "j": ""
+          }
+      }
+  }
+}))))
+
+// js结果
+a=1661408635&members[b]=1&members[c]=0&members[d]=1&members[f]=&members[members][a]=0&members[members][b]=0&members[members][c]=1&members[members][members][e]=1&members[members][members][f]=0&members[members][members][j]=&members[members][members][s]=0&n=ewsqam3&t=1677933143
+
+//php结果
+a=1661408635&members[b]=1&members[c]=0&members[d]=1&members[f]=&members[members][a]=0&members[members][b]=0&members[members][c]=1&members[members][members][e]=1&members[members][members][f]=0&members[members][members][j]=&members[members][members][s]=0&n=ewsqam3&t=1677933143
+```
