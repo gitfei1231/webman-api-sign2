@@ -19,9 +19,10 @@ class ApiSignMiddleware implements MiddlewareInterface
         $class = new \ReflectionClass($request->controller);
         $properties = $class->getDefaultProperties();
         $noNeedSign = array_map('strtolower', $properties['noNeedSign'] ?? []);
-        $isSign = in_array(strtolower($request->action), $noNeedSign) || in_array('*', $noNeedSign);
+        $ControlNotSign = !(in_array(strtolower($request->action), $noNeedSign) || in_array('*', $noNeedSign));
+        $routeNotSign = $route && $route->param('notSign') !== null ? $route->param('notSign') : false;
         
-        if (($route && !$route->param('notSign')) || !$isSign) {
+        if ($ControlNotSign || $routeNotSign) {
             $service = new ApiSignService;
             $config = $service->getConfig();
             if (!$config) {
