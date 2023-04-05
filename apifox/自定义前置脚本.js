@@ -180,45 +180,45 @@ class AES {
   }
 
   encrypt(plaintext) {
-    const iv = CryptoJS.lib.WordArray.random(16);
-    const ciphertext = CryptoJS.AES.encrypt(
+    const iv = cryptoJs.lib.WordArray.random(16);
+    const ciphertext = cryptoJs.AES.encrypt(
       plaintext,
       this.key,
-      { iv: iv, padding: CryptoJS.pad.Pkcs7, mode: CryptoJS.mode.CBC }
+      { iv: iv, padding: cryptoJs.pad.Pkcs7, mode: cryptoJs.mode.CBC }
     );
-    return iv.concat(ciphertext.ciphertext).toString(CryptoJS.enc.Base64);
+    return iv.concat(ciphertext.ciphertext).toString(cryptoJs.enc.Base64);
   }
 
   decrypt(ciphertext) {
-    ciphertext = CryptoJS.enc.Base64.parse(ciphertext);
+    ciphertext = cryptoJs.enc.Base64.parse(ciphertext);
     const iv = ciphertext.clone();
     iv.sigBytes = 16;
     iv.clamp();
     ciphertext.words.splice(0, 4); // remove IV from ciphertext
     ciphertext.sigBytes -= 16;
-    const decrypted = CryptoJS.AES.decrypt(
+    const decrypted = cryptoJs.AES.decrypt(
       { ciphertext: ciphertext },
       this.key,
-      { iv: iv, padding: CryptoJS.pad.Pkcs7, mode: CryptoJS.mode.CBC }
+      { iv: iv, padding: cryptoJs.pad.Pkcs7, mode: cryptoJs.mode.CBC }
     );
-    const plaintext = decrypted.toString(CryptoJS.enc.Utf8);
+    const plaintext = decrypted.toString(cryptoJs.enc.Utf8);
     return plaintext;
   }
 
   toHex() {
-    return this.key.toString(CryptoJS.enc.Hex);
+    return this.key.toString(cryptoJs.enc.Hex);
   }
 
   static fromHex(hexString) {
-    return new AES(CryptoJS.enc.Hex.parse(hexString));
+    return new AES(cryptoJs.enc.Hex.parse(hexString));
   }
 
   static fromBase64(base64String) {
-    return new AES(CryptoJS.enc.Base64.parse(base64String));
+    return new AES(cryptoJs.enc.Base64.parse(base64String));
   }
 
   toBase64() {
-    return this.key.toString(CryptoJS.enc.Base64);
+    return this.key.toString(cryptoJs.enc.Base64);
   }
 }
 
