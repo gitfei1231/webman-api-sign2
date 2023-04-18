@@ -120,7 +120,7 @@ class ApiSignService
                 throw new ApiSignException("请求失效", ApiSignException::REQUEST_INVALID);
             }else{
                 //存储 noncestr
-                Cache::set('noncestr_'.$data[$this->config['fields']['noncestr']].($ip ?? ''),[$data[$this->config['fields']['noncestr']], $data[$this->config['fields']['timestamp']]]);
+                Cache::set('noncestr_'.$data[$this->config['fields']['noncestr']].($ip ?? ''), $data[$this->config['fields']['noncestr']], $this->config['timeout']);
             }
         }
     }
