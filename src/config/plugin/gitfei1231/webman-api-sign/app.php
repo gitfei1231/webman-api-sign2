@@ -27,7 +27,7 @@ return [
      * 设置缓存时间即可缓存对应的app_id数据
      * db_cache_time => null 关闭缓存
      */
-    'db_cache_time' => 604800, // null 关闭缓存
+    'db_cache_time' => null, // null 关闭缓存
 
     //字段对照，可从(header,get,post)获取的值
     'fields' => [
