@@ -45,7 +45,7 @@ class ApiSignMiddleware implements MiddlewareInterface
             //判断是否启用rsa算法
             if($app_info['rsa_status']){
                 if(empty($data[$fields['app_key']])){
-                    throw new ApiSignException("签名参数错误", ApiSignException::PARAMS_ERROR);
+                    throw new ApiSignException("签名错误", ApiSignException::PARAMS_ERROR);
                 }
                 try{
                     $key  = RSA::rsa_decode($data[$fields['app_key']], $app_info['private_key']);

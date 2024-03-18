@@ -70,7 +70,7 @@ class ApiSignService
         unset($data[$this->config['fields']['app_key']]);
         unset($data[$this->config['fields']['signature']]);
         if (!isset($data[$this->config['fields']['app_id']]) || !isset($data[$this->config['fields']['timestamp']]) || !isset($data[$this->config['fields']['noncestr']])) {
-            throw new ApiSignException("签名参数错误", ApiSignException::PARAMS_ERROR);
+            throw new ApiSignException("签名错误", ApiSignException::PARAMS_ERROR);
         }
 
         //应用数据
@@ -100,7 +100,7 @@ class ApiSignService
     public function check(array $data, string $key)
     {
         if (!$signature = $data[$this->config['fields']['signature']]) {
-            throw new ApiSignException("签名参数错误", ApiSignException::PARAMS_ERROR);
+            throw new ApiSignException("签名错误", ApiSignException::PARAMS_ERROR);
         }
         if ($signature !== $this->sign($data, $key)) {
             throw new ApiSignException("签名验证失败", ApiSignException::SIGN_VERIFY_FAIL);
@@ -111,16 +111,17 @@ class ApiSignService
         if ($this->config['timeout'] && $this->config['timeout'] > 0 && ($data[$this->config['fields']['timestamp']] + $this->config['timeout'] < $ts || $data[$this->config['fields']['timestamp']] - $this->config['timeout'] > $ts)) {
             throw new ApiSignException("签名超时", ApiSignException::SIGN_TIMEOUT);
         }
+        
         if($this->config['replay']){
-            if ($request = \request()) {
-                $ip = $request->getRealIp();
-            }
-            $noncestr = Cache::get('noncestr_'.$data[$this->config['fields']['noncestr']].($ip ?? ''));
-            if ($noncestr) {
+            $noncestr = $data[$this->config['fields']['noncestr']];
+            $ip = \request()->getRealIp() ?? '';
+            $key = 'api_replay_' . $ip . '_' . $noncestr;
+            
+            if (Cache::has($key)) {
                 throw new ApiSignException("请求失效", ApiSignException::REQUEST_INVALID);
             }else{
                 //存储 noncestr
-                Cache::set('noncestr_'.$data[$this->config['fields']['noncestr']].($ip ?? ''), $data[$this->config['fields']['noncestr']], $this->config['timeout']);
+                Cache::put($key, true, $this->config['replay_timeout']); // 设置过期时间，这里假设 replay_timeout 是一个合适的过期时间
             }
         }
     }

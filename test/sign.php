@@ -11,7 +11,7 @@ $body = '{
     "name": "tangfei"
 }';
 
-$app_secret = 'D81668E7B3F24F4DAB32E5B88EAE27AC';
+$app_secret = 'D81668E1B3F24F4DAB32E5B88EAE27AC';
 
 $header = json_decode($header,true);
 $body = json_decode($body,true);
