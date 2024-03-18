@@ -121,7 +121,7 @@ class ApiSignService
                 throw new ApiSignException("请求失效", ApiSignException::REQUEST_INVALID);
             }else{
                 //存储 noncestr
-                Cache::put($key, true, $this->config['replay_timeout']); // 设置过期时间，这里假设 replay_timeout 是一个合适的过期时间
+                Cache::set($key, true, $this->config['replay_timeout']); // 设置过期时间，这里假设 replay_timeout 是一个合适的过期时间
             }
         }
     }
