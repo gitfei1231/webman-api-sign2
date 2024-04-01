@@ -36,6 +36,10 @@ class ApiSignMiddleware implements MiddlewareInterface
                 $fields['noncestr'] => $request->header($fields['noncestr'], $request->input($fields['noncestr'])),
                 $fields['signature'] => $request->header($fields['signature'], $request->input($fields['signature'])),
             ];
+            
+            if(empty($data[$fields['app_id']]) || empty($data[$fields['app_key']]) || empty($data[$fields['timestamp']]) || empty($data[$fields['noncestr']]) || empty($data[$fields['signature']])){
+                throw new ApiSignException("参数错误", ApiSignException::PARAMS_ERROR);
+            }
 
             $app_info = $service->getDriver()->getInfo($data[$fields['app_id']]);
             if(empty($app_info)){
