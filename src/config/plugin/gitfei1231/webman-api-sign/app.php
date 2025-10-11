@@ -11,22 +11,23 @@ return [
     */
     'driver' => \Wengg\WebmanApiSign\Driver\ArrayDriver::class,
     'encrypt' => 'sha256', //加密sign方式,
-    'timeout' => 60, //timestamp超时时间秒，0不限制
+    'timeout' => 3600,  //接口sign超时范围，客户端请求的timestamp和服务器时间对比出超时时间秒，0不限制
     'table' => 'app_sign', //表名
     
     /**
-     * 防重放请求是否开启 true只能请求一次，时间是上面 timeout内
-     * replay 主要借助与 timeout + noncestr随机值进行验证, 一定的时间内noncestr如果重复，那就判定重放请求
+     * 防重放请求是否开启 true只能在一定时间内请求一次
+     * replay 主要借助 ip + noncestr 随机值进行验证, 一定的时间内noncestr如果重复，那就判定重放请求
      * noncestr 建议生成随机唯一UUID 或者你使用 13位时间戳+18位随机数。1678159075243(13位)+随机数(18位)
      */
     'replay' => false, 
-
+    'replay_timeout' => 604800,  //接口重放超时时间秒，客户端在本时间范围内相同的ip + noncestr不可重复请求，过时后清空，0永久缓存永远不能二次重放请求
+    
     /**
      * 如果使用 DatabaseDriver 需要缓存查询后的数据
      * 设置缓存时间即可缓存对应的app_id数据
      * db_cache_time => null 关闭缓存
      */
-    'db_cache_time' => 604800, // null 关闭缓存
+    'db_cache_time' => null, // null 关闭缓存
 
     //字段对照，可从(header,get,post)获取的值
     'fields' => [
