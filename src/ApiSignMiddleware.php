@@ -25,7 +25,7 @@ class ApiSignMiddleware implements MiddlewareInterface
         if ($ControlNotSign || $routeNotSign) {
             $service = new ApiSignService;
             $config = $service->getConfig();
-            if (!$config) {
+            if (!$config || !$config['enable']) {
                 return $next($request);
             }
             $fields = $config['fields'];
