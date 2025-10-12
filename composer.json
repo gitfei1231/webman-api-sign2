@@ -15,7 +15,7 @@
     "psr/container": "~2.0"
   },
   "require-dev": {
-    "workerman/webman": "2.1"
+    "workerman/webman-framework": "^2.1"
   },
   "autoload": {
     "psr-4": {
