@@ -12,9 +12,8 @@
     "webman/think-cache": "~2.1",
     "webman/think-orm": "~2.1",
     "phpseclib/phpseclib": "~3.0",
-    "psr/container": "~2.0"
-  },
-  "require-dev": {
+    "psr/container": "~2.0",
+    "workerman/webman": "^2.1",
     "workerman/webman-framework": "^2.1"
   },
   "autoload": {
