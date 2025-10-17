@@ -71,7 +71,7 @@ class ApiSignMiddleware implements MiddlewareInterface
                     if(!is_array($postData)){
                         throw new ApiSignException("加密报文必须为JSON字符串", ApiSignException::JSON_ERROR);
                     }
-                    $request->setPostData($postData);
+                    $request->setPost($postData);
                 }
             } catch ( \Exception $e ) {
                 throw new ApiSignException("加密报文解析错误", ApiSignException::BODY_ERROR);

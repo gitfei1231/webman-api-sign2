@@ -1,8 +1,7 @@
 <?php
 
 namespace Wengg\WebmanApiSign;
-use think\facade\Cache;
-use Wengg\WebmanApiSign\Encryption\Util;
+use support\think\Cache;
 
 class ApiSignService
 {
